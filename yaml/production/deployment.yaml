@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: twilio
-          image: gcr.io/centered-cursor-392711/simmer/restaurant:twilio86 #calleridwithpeonyoneforward
+          image: gcr.io/centered-cursor-392711/simmer/restaurant:twilio88 #peonydoublesimultaneousring
           resources:
             requests:
               memory: "1Gi"

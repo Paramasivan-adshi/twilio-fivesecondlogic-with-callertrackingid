@@ -4,7 +4,8 @@ const cors = require('cors')
 const morgan = require("morgan");
 const app = express();
 const corsOption = {
-  origin: ['*'],
+  // origin: ['*'],
+  origin: '*', // Allows all origins; adjust for production as needed
 };
 app.use(cors(corsOption));
 app.use(express.json());

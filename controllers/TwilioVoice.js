@@ -3,7 +3,7 @@ const getIvrSettings = require("../model/IvrSettings");
 const { SaveCdrReport, UpdateCdrReport } = require("../model/cdrReport");
 const sendMessage = require("../model/sendMessage");
 
-const DEFAULT_FORWARD_INTERVAL_TIME_SEC = 5;
+const DEFAULT_FORWARD_INTERVAL_TIME_SEC = 1800;
 const IVR_INPUT_HANDLER_ENDPOINT = "/api/v1/twilio/voice/ivr";
 const IVR_HANDLER_ENDPOINT = "/api/v1/twilio/voice";
 const callerLastAction = {};
@@ -59,21 +59,22 @@ const conditionstwo =
   lastAction.action === "forward";
 
   // If bypassing, directly dial the forward number without looping IVR
-  if (conditionsone || conditionstwo) {
-    console.log(ivrConfig, "ivrcheck");
-    // If conditions are met, play the forward message and dial the forward number
-    // let { voice: voiceFile, promptContent } = ivrConfig["ivr_forward"];
-    // if (voiceFile) {
-    //   twiml.play(voiceFile);
-    // } else if (promptContent) {
-    //   gather.say({ voice: "woman" }, promptContent);
-    // }
-   twiml.dial({ callerId: calledNumber }, ivrConfig["forward_number"][0]);
-   console.log("Called Number testafter dial",calledNumber)
-    res.writeHead(200, { "Content-Type": "text/xml" });
-    res.end(twiml.toString());
-    return;
-  }
+  // if (conditionsone || conditionstwo) {
+  //   console.log(ivrConfig, "ivrcheck");
+  //   // If conditions are met, play the forward message and dial the forward number
+  //   // let { voice: voiceFile, promptContent } = ivrConfig["ivr_forward"];
+  //   // if (voiceFile) {
+  //   //   twiml.play(voiceFile);
+  //   // } else if (promptContent) {
+  //   //   gather.say({ voice: "woman" }, promptContent);
+  //   // }
+  //   console.log("Called Number testafter dial",calledNumber)
+  //  twiml.dial({ callerId: calledNumber }, ivrConfig["forward_number"][0]);
+  //  console.log("Called Number testafter dial1",calledNumber)
+  //   res.writeHead(200, { "Content-Type": "text/xml" });
+  //   res.end(twiml.toString());
+  //   return;
+  // }
 
   // Regular IVR flow here (when not bypassing)
   const { promptContent, voice: welcomeMessageUrlsquare } = ivrConfig["ivr_prompt"];
@@ -223,14 +224,14 @@ async function handleTwilioVoiceInputs(req, res) {
     console.log("Dialing with callerId:", calledNumber);
   
     if (ivrConfig["forward_number"].length > 1) {
-      const dialWithTimeout = twiml.dial({ callerId: calledNumber, timeout: 6 });
+      const simultaneousDial = twiml.dial({ callerId: calledNumber});
       console.log("Dialing forward_number[0]:", ivrConfig["forward_number"][0]); // Log forward number 0
-      dialWithTimeout.number(ivrConfig["forward_number"][0]);
-  
-      const dialAfterTimeout = twiml.dial({ callerId: calledNumber });
       console.log("Dialing forward_number[1]:", ivrConfig["forward_number"][1]); // Log forward number 1
-      dialAfterTimeout.number({ url: IVR_HANDLER_ENDPOINT }, ivrConfig["forward_number"][1]);
-    } else {
+        // Dial both numbers simultaneously
+      simultaneousDial.number(ivrConfig["forward_number"][0]);
+      simultaneousDial.number(ivrConfig["forward_number"][1]);
+  }
+   else {
       const dial = twiml.dial({ callerId: calledNumber });
       console.log("Dialing single forward_number:", ivrConfig["forward_number"][0]); // Log the single forward number
       dial.number(ivrConfig["forward_number"][0]);
